@@ -3,6 +3,9 @@
 
 #include "card.h"
 #include "deck.h"
+
+#define NOB_STRIP_PREFIX
+#include "nob.h"
 #include "raylib.h"
 
 void deck_init(Deck *deck) {
@@ -43,4 +46,26 @@ void deck_init(Deck *deck) {
 void deck_free(Deck deck) {
   for (size_t i = 0; i < COLUMNS_N; i++)
     free(deck.columns[i].items);
+}
+
+void deck_move_into(Deck *deck, Cards *source, CardLocation destination_loc,
+                    size_t destination_index) {
+  Cards *destination;
+  switch (destination_loc) {
+  case CardInColumn:
+    destination = &deck->columns[destination_index];
+    break;
+  case CardInFoundation:
+    destination = &deck->foundation[destination_index];
+    break;
+  case CardInWastePile:
+    destination = &deck->waste_pile;
+    break;
+  }
+
+  da_reserve(destination, destination->count + source->count);
+  for (size_t i = 0; i < source->count; i++) {
+    destination->items[destination->count++] = source->items[i];
+  }
+  source->count = 0;
 }

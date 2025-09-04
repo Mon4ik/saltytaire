@@ -10,12 +10,6 @@ static const size_t FOUNDATION_N = 4;
 static const size_t TOTAL_CARDS_COUNT = 52;
 
 typedef struct {
-  Card *items;
-  size_t count;
-  size_t capacity;
-} Cards;
-
-typedef struct {
   Cards columns[COLUMNS_N];
   Cards foundation[FOUNDATION_N];
   Cards stock_pile;
@@ -24,5 +18,8 @@ typedef struct {
 
 void deck_init(Deck *deck);
 void deck_free(Deck deck);
+
+void deck_move_into(Deck *deck, Cards *source, CardLocation destination_loc,
+                    size_t destination_index);
 
 #endif // !DECK_H_

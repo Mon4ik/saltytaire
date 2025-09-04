@@ -1,33 +1,28 @@
-#include "game.h"
 #include "raylib.h"
 
-const int screenWidth = 900;
-const int screenHeight = 600;
-
-const int virtualScreenWidth = 300;
-const int virtualScreenHeight = 200;
-
-const float virtualRatio = (float)screenWidth / (float)virtualScreenWidth;
+#include "constants.h"
+#include "game.h"
 
 int main(void) {
-  InitWindow(screenWidth, screenHeight, "saltytare");
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "saltytare");
 
   Game game = {0};
   game_init(&game);
 
   RenderTexture2D target =
-      LoadRenderTexture(virtualScreenWidth, virtualScreenHeight);
+      LoadRenderTexture(VIRTUAL_SCREEN_WIDTH, VIRTUAL_SCREEN_HEIGHT);
   Camera2D screenSpaceCamera = {0}; // Smoothing camera
   screenSpaceCamera.zoom = 1.0f;
 
   Rectangle sourceRec = {0.0f, 0.0f, (float)target.texture.width,
                          -(float)target.texture.height};
-  Rectangle destRec = {-virtualRatio, -virtualRatio,
-                       screenWidth + (virtualRatio * 2),
-                       screenHeight + (virtualRatio * 2)};
+  Rectangle destRec = {-VIRTUAL_RATIO, -VIRTUAL_RATIO,
+                       SCREEN_WIDTH + (VIRTUAL_RATIO * 2),
+                       SCREEN_HEIGHT + (VIRTUAL_RATIO * 2)};
   Vector2 origin = {0.0f, 0.0f};
 
   while (!WindowShouldClose()) {
+    game_tick(&game);
     BeginTextureMode(target);
     game_draw(&game);
     EndTextureMode();
