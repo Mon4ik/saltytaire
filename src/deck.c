@@ -48,6 +48,24 @@ void deck_free(Deck deck) {
     free(deck.columns[i].items);
 }
 
+Cards *deck_get(Deck *deck, CardLocation loc, size_t loc_index) {
+  switch (loc) {
+  case CardInColumn:
+    return &deck->columns[loc_index];
+  case CardInFoundation:
+    return &deck->foundation[loc_index];
+  case CardInWastePile:
+    return &deck->waste_pile;
+  }
+}
+
+void deck_open_last(Deck *deck, CardLocation loc, size_t loc_index) {
+  Cards *dest = deck_get(deck, loc, loc_index);
+
+  if (dest->count > 0)
+    dest->items[dest->count - 1].state = CardOpened;
+}
+
 void deck_move_into(Deck *deck, Cards *source, CardLocation destination_loc,
                     size_t destination_index) {
   Cards *destination;

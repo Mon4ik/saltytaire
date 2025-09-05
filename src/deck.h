@@ -19,6 +19,8 @@ typedef struct {
 void deck_init(Deck *deck);
 void deck_free(Deck deck);
 
+Cards *deck_get(Deck *deck, CardLocation loc, size_t loc_index);
+void deck_open_last(Deck *deck, CardLocation loc, size_t loc_index);
 void deck_move_into(Deck *deck, Cards *source, CardLocation destination_loc,
                     size_t destination_index);
 

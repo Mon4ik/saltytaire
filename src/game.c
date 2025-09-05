@@ -7,12 +7,36 @@
 #include "game.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "rules.h"
 #include "sprites.h"
 
 #define NOB_STRIP_PREFIX
 #include "nob.h"
 
 // CURSOR
+
+static bool handle_dropping_into_columns(Game *game, Vector2 mouse_pos) {
+  for (size_t column_n = 0; column_n < COLUMNS_N; column_n++) {
+    float column_x = (CARD_WIDTH + 4) * column_n + 8;
+    if (column_x < mouse_pos.x && mouse_pos.x < column_x + CARD_WIDTH) {
+      if (is_allowed_to_drop_into(&game->deck, &game->cursor.cards,
+                                  CardInColumn, column_n)) {
+        game->cursor.dragged_card = NULL;
+
+        deck_open_last(&game->deck, game->cursor.location,
+                       game->cursor.location_index);
+        deck_move_into(&game->deck, &game->cursor.cards, CardInColumn,
+                       column_n);
+
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  return false;
+}
 
 static void tick_cursor(Game *game) {
   if (game->cursor.dragged_card == NULL)
@@ -22,25 +46,12 @@ static void tick_cursor(Game *game) {
     Vector2 mouse_pos =
         Vector2Scale(GetMousePosition(), (float)1 / VIRTUAL_RATIO);
 
-    // Drop into columns
     if (mouse_pos.y > CARD_HEIGHT + 10) {
-      for (size_t column_n = 0; column_n < COLUMNS_N; column_n++) {
-        float column_x = (CARD_WIDTH + 4) * column_n + 8;
-        if (column_x < mouse_pos.x && mouse_pos.x < column_x + CARD_WIDTH) {
-          game->cursor.dragged_card = NULL;
-          
-          
-
-          deck_move_into(&game->deck, &game->cursor.cards, CardInColumn,
-                         column_n);
-
-          
-
-          return;
-        }
-      }
+      if (handle_dropping_into_columns(game, mouse_pos))
+        return;
     }
 
+    // Return back
     game->cursor.dragged_card = NULL;
     deck_move_into(&game->deck, &game->cursor.cards, game->cursor.location,
                    game->cursor.location_index);
@@ -68,6 +79,7 @@ static bool tick_card(Game *game, size_t column_i, size_t i, Vector2 card_pos) {
     if (card_pos.x < mouse_pos.x && mouse_pos.x < max_x &&
         card_pos.y < mouse_pos.y && mouse_pos.y < max_y) {
       game->cursor.dragged_card = &column->items[i];
+      game->cursor.dragging_offset = Vector2Subtract(mouse_pos, card_pos);
       game->cursor.location = CardInColumn;
       game->cursor.location_index = column_i;
 

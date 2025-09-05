@@ -8,6 +8,7 @@
 typedef struct {
   Cards cards;
   Card *dragged_card;
+  Vector2 dragging_offset;
 
   CardLocation location;
   size_t location_index;
