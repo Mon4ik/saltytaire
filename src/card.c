@@ -6,16 +6,20 @@
 static Rectangle get_sprite(Card *card) {
   float x, y;
   switch (card->state) {
-  case CardClosed:
-    x = 1 * CARD_WIDTH;
-    y = 4 * CARD_HEIGHT;
-    break;
   case CardOpened:
     x = card->rank * CARD_WIDTH;
     y = card->suit * CARD_HEIGHT;
     break;
   case CardEmpty:
     x = 0;
+    y = 4 * CARD_HEIGHT;
+    break;
+  case CardRepeat:
+    x = 1 * CARD_WIDTH;
+    y = 4 * CARD_HEIGHT;
+    break;
+  case CardClosed:
+    x = 2 * CARD_WIDTH;
     y = 4 * CARD_HEIGHT;
     break;
   }

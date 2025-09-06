@@ -24,4 +24,6 @@ void deck_open_last(Deck *deck, CardLocation loc, size_t loc_index);
 void deck_move_into(Deck *deck, Cards *source, CardLocation destination_loc,
                     size_t destination_index);
 
+void deck_take_from_stock(Deck *deck);
+void deck_restock_pile(Deck *deck);
 #endif // !DECK_H_

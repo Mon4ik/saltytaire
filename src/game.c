@@ -9,6 +9,7 @@
 #include "raymath.h"
 #include "rules.h"
 #include "sprites.h"
+#include "ui.h"
 
 #define NOB_STRIP_PREFIX
 #include "nob.h"
@@ -110,6 +111,79 @@ void game_free(Game game) {
 
 void game_tick(Game *game) {}
 
+static void tick_stock_pile(Game *game) {
+  Vector2 stock_pile_pos = get_stock_pile_pos();
+  Vector2 mouse_pos = get_mouse_pos();
+
+  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+      stock_pile_pos.x < mouse_pos.x &&
+      mouse_pos.x < stock_pile_pos.x + CARD_WIDTH &&
+      stock_pile_pos.y < mouse_pos.y &&
+      mouse_pos.y < stock_pile_pos.y + CARD_HEIGHT) {
+
+    if (game->deck.stock_pile.count > 0) {
+      deck_take_from_stock(&game->deck);
+    } else {
+      deck_restock_pile(&game->deck);
+    }
+  }
+}
+
+static void draw_stock_pile(Game *game) {
+  Vector2 stock_pile_pos = get_stock_pile_pos();
+
+  if (game->deck.stock_pile.count > 0) {
+    card_render(&(Card){.state = CardClosed}, &game->sprites, stock_pile_pos);
+  } else {
+    card_render(&(Card){.state = CardRepeat}, &game->sprites, stock_pile_pos);
+  }
+}
+
+static void tick_waste_pile(Game *game) {
+  Cards *waste_pile = &game->deck.waste_pile;
+  if (waste_pile->count == 0)
+    return;
+
+  size_t last_card_index = waste_pile->count > 3 ? 2 : waste_pile->count - 1;
+  Vector2 waste_pile_pos = get_waste_pile_pos(last_card_index);
+  Vector2 mouse_pos = get_mouse_pos();
+
+  if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) &&
+      game->cursor.dragged_card == NULL && waste_pile_pos.x < mouse_pos.x &&
+      mouse_pos.x < waste_pile_pos.x + CARD_WIDTH &&
+      waste_pile_pos.y < mouse_pos.y &&
+      mouse_pos.y < waste_pile_pos.y + CARD_HEIGHT) {
+
+    game->cursor.dragged_card = &waste_pile->items[waste_pile->count - 1];
+    game->cursor.dragging_offset = Vector2Subtract(mouse_pos, waste_pile_pos);
+    game->cursor.location = CardInWastePile;
+    game->cursor.location_index = waste_pile->count - 1;
+
+    da_reserve(&game->cursor.cards, 1);
+    game->cursor.cards.items[game->cursor.cards.count++] =
+        waste_pile->items[--waste_pile->count];
+  }
+}
+
+static void draw_waste_pile(Game *game) {
+  Cards waste_pile = game->deck.waste_pile;
+  Card last_cards[3];
+  size_t last_cards_len = 0;
+
+  size_t i = 0;
+  if (waste_pile.count >= 3) {
+    i = waste_pile.count - 3;
+  }
+  for (; i < waste_pile.count; i++) {
+    size_t last_cards_i = last_cards_len++;
+    last_cards[last_cards_i] = waste_pile.items[i];
+  }
+
+  for (size_t i = 0; i < last_cards_len; i++) {
+    card_render(&last_cards[i], &game->sprites, get_waste_pile_pos(i));
+  }
+}
+
 void game_draw(Game *game) {
   ClearBackground(DARKGREEN);
 
@@ -120,9 +194,14 @@ void game_draw(Game *game) {
       // TODO
     } else {
       card_render(&(Card){.state = CardEmpty}, &game->sprites,
-                  (Vector2){.x = 8, .y = 5});
+                  (Vector2){.x = (CARD_WIDTH + 4) * foundation_i + 8, .y = 5});
     }
   }
+
+  tick_stock_pile(game);
+  draw_stock_pile(game);
+  tick_waste_pile(game);
+  draw_waste_pile(game);
 
   for (size_t column_i = 0; column_i < COLUMNS_N; column_i++) {
     Cards *column = &game->deck.columns[column_i];
