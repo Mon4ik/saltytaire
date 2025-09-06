@@ -13,7 +13,7 @@ BUILD_DIR = ./build
 SOURCES := $(shell find $(SOURCES_DIR) -name '*.c')
 OBJECTS := $(SOURCES:%=$(BUILD_DIR)/%.o)
 
-$(BUILD_DIR)/saltytare: $(OBJECTS)
+$(BUILD_DIR)/saltytaire: $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $^
 
 $(BUILD_DIR)/%.c.o: %.c

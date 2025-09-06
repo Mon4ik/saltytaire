@@ -1,4 +1,4 @@
-# saltytare
+# saltytaire
 
 shitty solitaire in C
 

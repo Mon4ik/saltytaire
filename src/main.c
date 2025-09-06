@@ -4,7 +4,7 @@
 #include "game.h"
 
 int main(void) {
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "saltytare");
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "saltytaire");
 
   Game game = {0};
   game_init(&game);
