@@ -9,4 +9,6 @@ Vector2 get_mouse_pos();
 Vector2 get_stock_pile_pos();
 Vector2 get_waste_pile_pos(size_t card_index);
 
+Vector2 get_foundation_pos(size_t foundation_index);
+
 #endif // !UI_H_

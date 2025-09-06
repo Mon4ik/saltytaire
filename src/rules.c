@@ -9,30 +9,45 @@ bool is_allowed_to_drop_into(Deck *deck, Cards *cursor_cards,
     return false; // dude, how?
 
   Cards *dest = deck_get(deck, dest_loc, dest_loc_index);
-
   Card cursor_top_card = cursor_cards->items[0];
+  Card dest_top_card;
 
-  if (dest->count == 0) {
-    if (dest_loc == CardInColumn && cursor_top_card.rank == K) {
-      return true;
+  switch (dest_loc) {
+
+  case CardInColumn:
+    if (dest->count == 0) {
+      return cursor_top_card.rank == K;
     }
 
-    if (dest_loc == CardInFoundation && cursor_top_card.rank == A) {
-      return true;
+    dest_top_card = dest->items[dest->count - 1];
+
+    if (dest_top_card.rank == R2) {
+      return false;
     }
 
+    if (dest_top_card.rank - 1 != cursor_top_card.rank) {
+      return false;
+    }
+
+    return dest_top_card.suit % 2 != cursor_top_card.suit % 2;
+  case CardInFoundation:
+    if (dest->count == 0) {
+      return cursor_top_card.rank == A;
+    }
+
+    dest_top_card = dest->items[dest->count - 1];
+
+    if (dest_top_card.suit != cursor_top_card.suit)
+      return false;
+
+    if (dest_top_card.rank == A)
+      return cursor_top_card.rank == R2;
+
+    if (dest_top_card.rank == K) // king is max
+      return false;
+
+    return dest_top_card.rank + 1 == cursor_top_card.rank;
+  case CardInWastePile:
     return false;
   }
-
-  Card dest_top_card = dest->items[dest->count - 1];
-
-  if (dest_top_card.rank == R2) {
-    return false;
-  }
-
-  if (dest_top_card.rank - 1 != cursor_top_card.rank) {
-    return false;
-  }
-
-  return dest_top_card.suit % 2 != cursor_top_card.suit % 2;
 }

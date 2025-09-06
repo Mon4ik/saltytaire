@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "card.h"
@@ -39,6 +40,35 @@ static bool handle_dropping_into_columns(Game *game, Vector2 mouse_pos) {
   return false;
 }
 
+static bool handle_dropping_into_foundation(Game *game, Vector2 mouse_pos) {
+  if (game->cursor.cards.count != 1)
+    return false;
+
+  for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
+    Vector2 foundation_pos = get_foundation_pos(foundation_i);
+    Vector2 mouse_pos = get_mouse_pos();
+
+    if (foundation_pos.x < mouse_pos.x &&
+        mouse_pos.x < foundation_pos.x + CARD_WIDTH &&
+        foundation_pos.y < mouse_pos.y &&
+        mouse_pos.y < foundation_pos.y + CARD_HEIGHT &&
+        is_allowed_to_drop_into(&game->deck, &game->cursor.cards,
+                                CardInFoundation, foundation_i)) {
+
+      game->cursor.dragged_card = NULL;
+      deck_open_last(&game->deck, game->cursor.location,
+                     game->cursor.location_index);
+
+      Cards *foundation = deck_get(&game->deck, CardInFoundation, foundation_i);
+      da_append(foundation, game->cursor.cards.items[0]);
+      game->cursor.cards.count = 0;
+
+      return true;
+    }
+  }
+  return false;
+}
+
 static void tick_cursor(Game *game) {
   if (game->cursor.dragged_card == NULL)
     return;
@@ -49,6 +79,9 @@ static void tick_cursor(Game *game) {
 
     if (mouse_pos.y > CARD_HEIGHT + 10) {
       if (handle_dropping_into_columns(game, mouse_pos))
+        return;
+    } else {
+      if (handle_dropping_into_foundation(game, mouse_pos))
         return;
     }
 
@@ -190,12 +223,9 @@ void game_draw(Game *game) {
   for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
     Cards foundation = game->deck.foundation[foundation_i];
 
-    if (foundation.count > 0) {
-      // TODO
-    } else {
-      card_render(&(Card){.state = CardEmpty}, &game->sprites,
-                  (Vector2){.x = (CARD_WIDTH + 4) * foundation_i + 8, .y = 5});
-    }
+    card_render(foundation.count > 0 ? &foundation.items[foundation.count - 1]
+                                     : &(Card){.state = CardEmpty},
+                &game->sprites, get_foundation_pos(foundation_i));
   }
 
   tick_stock_pile(game);

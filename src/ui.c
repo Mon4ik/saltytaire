@@ -19,3 +19,7 @@ Vector2 get_waste_pile_pos(size_t card_index) {
                         (CARD_WIDTH - 8 - 20) * (3 - card_index + 1) - 23,
                    .y = 5};
 }
+
+Vector2 get_foundation_pos(size_t foundation_index) {
+  return (Vector2){.x = (CARD_WIDTH + 4) * foundation_index + 8, .y = 5};
+}
