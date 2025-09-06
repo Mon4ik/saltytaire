@@ -3,9 +3,6 @@
 
 #include "raylib.h"
 
-static const int CARD_WIDTH = 37;
-static const int CARD_HEIGHT = 52;
-
 typedef struct {
   Texture2D cards;
 } Sprites;

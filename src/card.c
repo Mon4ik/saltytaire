@@ -1,7 +1,10 @@
-#include "card.h"
-#include "raylib.h"
-#include "sprites.h"
 #include <stdio.h>
+
+#include "raylib.h"
+
+#include "card.h"
+#include "sprites.h"
+#include "ui.h"
 
 static Rectangle get_sprite(Card *card) {
   float x, y;

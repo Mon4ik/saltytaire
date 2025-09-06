@@ -1,7 +1,6 @@
 #include "rules.h"
 #include "card.h"
 #include "deck.h"
-#include "raylib.h"
 
 bool is_allowed_to_drop_into(Deck *deck, Cards *cursor_cards,
                              CardLocation dest_loc, size_t dest_loc_index) {

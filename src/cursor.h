@@ -14,6 +14,4 @@ typedef struct {
   size_t location_index;
 } Cursor;
 
-void cursor_render(Cursor *cursor, Sprites *sprites);
-
 #endif // !CURSOR_H_

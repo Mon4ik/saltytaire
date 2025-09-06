@@ -1,7 +1,7 @@
 #include "raylib.h"
 
-#include "constants.h"
 #include "game.h"
+#include "ui.h"
 
 int main(void) {
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "saltytaire");

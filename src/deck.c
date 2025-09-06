@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "card.h"
-#include "deck.h"
-
 #define NOB_STRIP_PREFIX
 #include "nob.h"
 #include "raylib.h"
+
+#include "card.h"
+#include "deck.h"
 
 void deck_init(Deck *deck) {
   Cards cards = {.items = malloc(TOTAL_CARDS_COUNT * sizeof(Card)),
