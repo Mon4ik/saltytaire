@@ -34,7 +34,8 @@ static void tick_foundation(Game *game) {
 
     Vector2 foundation_pos = get_foundation_pos(foundation_i);
 
-    if (foundation_pos.x < mouse_pos.x &&
+    if (foundation->count > 0 && /* otherwise will be segmentation fault */
+        foundation_pos.x < mouse_pos.x &&
         mouse_pos.x < foundation_pos.x + CARD_WIDTH &&
         foundation_pos.y < mouse_pos.y &&
         mouse_pos.y < foundation_pos.y + CARD_HEIGHT) {
@@ -228,7 +229,7 @@ static bool handle_dropping_into_foundation(Game *game, Vector2 mouse_pos) {
   for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
     if (game->cursor.location == CardInFoundation &&
         game->cursor.location_index == foundation_i)
-      return false; // same location, ignore it
+      continue; // same location, ignore it
 
     Vector2 foundation_pos = get_foundation_pos(foundation_i);
     Vector2 mouse_pos = get_mouse_pos();
