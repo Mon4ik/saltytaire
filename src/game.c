@@ -23,6 +23,33 @@ void game_free(Game game) {
   sprites_free(game.sprites);
 }
 
+static void tick_foundation(Game *game) {
+  if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
+      game->cursor.dragged_card != NULL)
+    return;
+
+  Vector2 mouse_pos = get_mouse_pos();
+  for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
+    Cards *foundation = &game->deck.foundation[foundation_i];
+
+    Vector2 foundation_pos = get_foundation_pos(foundation_i);
+
+    if (foundation_pos.x < mouse_pos.x &&
+        mouse_pos.x < foundation_pos.x + CARD_WIDTH &&
+        foundation_pos.y < mouse_pos.y &&
+        mouse_pos.y < foundation_pos.y + CARD_HEIGHT) {
+      game->cursor.dragged_card = &foundation->items[foundation->count - 1];
+      game->cursor.dragging_offset = Vector2Subtract(mouse_pos, foundation_pos);
+      game->cursor.location = CardInFoundation;
+      game->cursor.location_index = foundation_i;
+
+      da_reserve(&game->cursor.cards, 1);
+      game->cursor.cards.items[game->cursor.cards.count++] =
+          foundation->items[--foundation->count];
+    }
+  }
+}
+
 static void draw_foundation(Game *game) {
   for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
     Cards foundation = game->deck.foundation[foundation_i];
@@ -169,6 +196,10 @@ static void draw_columns(Game *game) {
 
 static bool handle_dropping_into_columns(Game *game, Vector2 mouse_pos) {
   for (size_t column_n = 0; column_n < COLUMNS_N; column_n++) {
+    if (game->cursor.location == CardInColumn &&
+        game->cursor.location_index == column_n)
+      continue;
+
     float column_x = (CARD_WIDTH + 4) * column_n + 8;
     if (column_x < mouse_pos.x && mouse_pos.x < column_x + CARD_WIDTH) {
       if (is_allowed_to_drop_into(&game->deck, &game->cursor.cards,
@@ -195,6 +226,10 @@ static bool handle_dropping_into_foundation(Game *game, Vector2 mouse_pos) {
     return false;
 
   for (size_t foundation_i = 0; foundation_i < FOUNDATION_N; foundation_i++) {
+    if (game->cursor.location == CardInFoundation &&
+        game->cursor.location_index == foundation_i)
+      return false; // same location, ignore it
+
     Vector2 foundation_pos = get_foundation_pos(foundation_i);
     Vector2 mouse_pos = get_mouse_pos();
 
@@ -255,6 +290,8 @@ static void draw_cursor(Game *game) {
 }
 
 void game_tick(Game *game) {
+  tick_foundation(game);
+
   tick_stock_pile(game);
   tick_waste_pile(game);
 
