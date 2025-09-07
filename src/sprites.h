@@ -5,6 +5,7 @@
 
 typedef struct {
   Texture2D cards;
+  Texture2D background;
 } Sprites;
 
 void sprites_init(Sprites *sprites);

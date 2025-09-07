@@ -301,7 +301,7 @@ void game_tick(Game *game) {
 }
 
 void game_draw(Game *game) {
-  ClearBackground(DARKGREEN);
+  DrawTexture(game->sprites.background, 0, 0, WHITE);
 
   draw_foundation(game);
 
